@@ -1,18 +1,32 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserRegistrationController;
+use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\LoginController;
 
-use App\Http\Controllers\AuthController;
+//ito homepage
+Route::get('/', function () {
+    return view('welcome');
+});
 
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
-Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Protected routes example
-Route::get('/admin/dashboard', function () {
-    return view('admin.dashboard');
-})->middleware('checkRole:admin');
+Route::view('/', 'welcome')->name('welcome');
 
-Route::get('/user/dashboard', function () {
-    return view('user.dashboard');
-})->middleware('checkRole:user');
+//ito register route
+Route::get('/register', [UserRegistrationController::class, 'showRegistrationForm'])->name('register');
+Route::post('/register', [UserRegistrationController::class, 'register'])->name('register.submit');
+
+
+//login
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
+Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
+
+Route::get('/dashboard', function () {
+    $user = session('user');
+    if (!$user) {
+        return redirect()->route('login')->withErrors(['login' => 'Please login first.']);
+    }
+    return view('dashboard', compact('user'));
+})->name('dashboard');
