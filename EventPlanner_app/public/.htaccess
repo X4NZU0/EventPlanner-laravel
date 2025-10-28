@@ -5,6 +5,9 @@
 
     RewriteEngine On
 
+    RewriteCond %{THE_REQUEST}\.\./[NC]
+    RewriteRule.* /[L,R=302]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

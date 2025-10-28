@@ -10,5 +10,6 @@
     <p>Year Level: {{ $user->user_year_lvl ?? 'N/A' }}</p>
 
     <a href="{{ route('logout') }}">Logout</a>
+    <a href="{{ route('events.index') }}">View</a>
 </body>
 </html>
