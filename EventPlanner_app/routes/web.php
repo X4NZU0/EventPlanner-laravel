@@ -45,8 +45,8 @@ Route::get('/dashboard', function () {
 
 // Public event routes
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
-Route::post('/events/{id}/interested', [EventController::class, 'markInterested'])->name('events.interested');
-Route::post('/events/{id}/comment', [EventController::class, 'addComment'])->name('events.comment');
+Route::post('/events/{event}/interested', [EventController::class, 'interested'])->name('events.interested');
+Route::post('/events/{event}/comment', [EventController::class, 'comment'])->name('events.comment');
 Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
 
 // =========================

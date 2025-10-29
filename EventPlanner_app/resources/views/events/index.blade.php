@@ -16,44 +16,51 @@
         form { display: inline; }
         textarea { width: 100%; margin: 5px 0; padding: 5px; }
         button { cursor: pointer; padding: 5px 10px; }
+        .meta { color: #555; font-size: 0.9em; }
     </style>
 </head>
-<body >
+<body>
 <div class="container">
     <div class="header">
         <h2>All Events</h2>
         <div>
-            {{-- Show Create Event button if admin is logged in --}}
-            
+            {{-- Create and Manage buttons for Admin --}}
+            @if(session()->has('admin'))
                 <a href="{{ route('events.create') }}" class="btn btn-create">➕ Create Event</a>
-            
-
-                <a href="{{ route('admin.users') }}" class="btn btn-create">Show Users</a>
- 
+                <a href="{{ route('admin.users') }}" class="btn btn-create">👥 Manage Users</a>
+            @endif
 
             <a href="{{ route('logout') }}" class="btn btn-logout">Logout</a>
         </div>
     </div>
 
-    {{-- Success message --}}
+    {{-- Success / Info / Error Messages --}}
     @if(session('success'))
         <p style="color:green;">{{ session('success') }}</p>
     @endif
+    @if(session('info'))
+        <p style="color:blue;">{{ session('info') }}</p>
+    @endif
+    @if($errors->any())
+        <p style="color:red;">{{ $errors->first() }}</p>
+    @endif
 
-    {{-- Events list --}}
+    {{-- Events List --}}
     @forelse($events as $event)
         <div class="event-card">
             <h3>
                 <a href="{{ route('events.show', $event->event_id) }}">{{ $event->event_name }}</a>
             </h3>
             <p>{{ $event->event_details }}</p>
-            <p><strong>Time:</strong> {{ $event->event_timestart }} - {{ $event->event_timeend }}</p>
-            <p><strong>Date:</strong> {{ $event->event_datestart }} - {{ $event->event_dateend }}</p>
-            <p><strong>Location:</strong> {{ $event->event_location }}</p>
-            <p><strong>Posted by:</strong> {{ $event->admin_name }}</p>
+            <p class="meta"><strong>Time:</strong> {{ $event->event_timestart }} - {{ $event->event_timeend }}</p>
+            <p class="meta"><strong>Date:</strong> {{ $event->event_datestart }} - {{ $event->event_dateend }}</p>
+            <p class="meta"><strong>Location:</strong> {{ $event->event_location }}</p>
+            <p class="meta"><strong>Posted by:</strong> {{ $event->admin_name ?? 'Unknown' }}</p>
 
-            {{-- Admin actions --}}
-            
+            <a href="{{ route('events.show', $event->event_id) }}" class="btn btn-create">👁️ View Full</a>
+
+            {{-- Admin Controls --}}
+            @if(session()->has('admin'))
                 <div style="margin-top:10px;">
                     <a href="{{ route('events.edit', $event->event_id) }}" class="btn btn-edit">✏️ Edit</a>
                     <form action="{{ route('events.destroy', $event->event_id) }}" method="POST"
@@ -63,29 +70,30 @@
                         <button type="submit" class="btn btn-delete">🗑️ Delete</button>
                     </form>
                 </div>
-            
+            @endif
 
-            {{-- User actions --}}
-            
+            {{-- User Actions --}}
+            @if(session()->has('user'))
                 <div style="margin-top:10px;">
                     <form action="{{ route('events.interested', $event->event_id) }}" method="POST" style="display:inline;">
                         @csrf
-                        <button type="submit">Interested ({{ $event->interest_count ?? 0 }})</button>
+                        <button type="submit">⭐ Interested ({{ $event->interest_count ?? 0 }})</button>
                     </form>
 
                     <button type="button" onclick="toggleComments({{ $event->event_id }})">
-                        Comments ({{ $event->comment_count ?? 0 }})
+                        💬 Comments ({{ $event->comment_count ?? 0 }})
                     </button>
 
-                    <div id="comments-{{ $event->event_id }}" style="display:none; margin-top:5px;">
+                    {{-- Comment Section --}}
+                    <div id="comments-{{ $event->event_id }}" style="display:none; margin-top:10px;">
                         <form action="{{ route('events.comment', $event->event_id) }}" method="POST">
                             @csrf
-                            <textarea name="comment_text" placeholder="Write a comment..." required></textarea>
+                            <textarea name="event_comment" placeholder="Write a comment..." required></textarea>
                             <button type="submit">Post</button>
                         </form>
                     </div>
                 </div>
-           
+            @endif
         </div>
     @empty
         <p>No events found.</p>
@@ -98,6 +106,5 @@ function toggleComments(id) {
     section.style.display = (section.style.display === 'none') ? 'block' : 'none';
 }
 </script>
-
 </body>
 </html>

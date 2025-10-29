@@ -32,34 +32,33 @@ class LoginController extends Controller
         $email = $request->input('user_email');
         $password = $request->input('user_password');
 
-        // Check admin first
+        // --- Admin Login ---
         $admin = Admin::where('admin_email', $email)->first();
         if ($admin && Hash::check($password, $admin->admin_password)) {
-            Session::put( [
+            Session::put('admin', [
                 'admin_id' => $admin->admin_id,
                 'admin_name' => $admin->admin_name,
                 'admin_email' => $admin->admin_email,
-                'status'=>'admin',
-                'admin'=>true
+                'status' => 'admin'
             ]);
 
             return redirect()->route('events.index')->with('success', 'Logged in as admin.');
         }
 
-        // Check regular user
+        // --- Regular User Login ---
         $user = UserRegistration::where('user_email', $email)->first();
         if ($user && Hash::check($password, $user->user_password)) {
             Session::put('user', [
                 'user_id' => $user->user_id,
                 'user_name' => $user->user_name,
                 'user_email' => $user->user_email,
-                'admin'=>true
+                'status' => 'user'
             ]);
 
             return redirect()->route('events.index')->with('success', 'Logged in successfully.');
         }
 
-        // Failed login
+        // --- Failed login ---
         return back()->withErrors(['login' => 'Invalid email or password.']);
     }
 
