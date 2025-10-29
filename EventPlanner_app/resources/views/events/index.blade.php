@@ -18,15 +18,19 @@
         button { cursor: pointer; padding: 5px 10px; }
     </style>
 </head>
-<body>
+<body >
 <div class="container">
     <div class="header">
         <h2>All Events</h2>
         <div>
             {{-- Show Create Event button if admin is logged in --}}
-            @if(session()->has('admin'))
+            
                 <a href="{{ route('events.create') }}" class="btn btn-create">➕ Create Event</a>
-            @endif
+            
+
+                <a href="{{ route('admin.users') }}" class="btn btn-create">Show Users</a>
+ 
+
             <a href="{{ route('logout') }}" class="btn btn-logout">Logout</a>
         </div>
     </div>
@@ -49,7 +53,7 @@
             <p><strong>Posted by:</strong> {{ $event->admin_name }}</p>
 
             {{-- Admin actions --}}
-            @if(session()->has('admin'))
+            
                 <div style="margin-top:10px;">
                     <a href="{{ route('events.edit', $event->event_id) }}" class="btn btn-edit">✏️ Edit</a>
                     <form action="{{ route('events.destroy', $event->event_id) }}" method="POST"
@@ -59,10 +63,10 @@
                         <button type="submit" class="btn btn-delete">🗑️ Delete</button>
                     </form>
                 </div>
-            @endif
+            
 
             {{-- User actions --}}
-            @if(session()->has('user'))
+            
                 <div style="margin-top:10px;">
                     <form action="{{ route('events.interested', $event->event_id) }}" method="POST" style="display:inline;">
                         @csrf
@@ -81,7 +85,7 @@
                         </form>
                     </div>
                 </div>
-            @endif
+           
         </div>
     @empty
         <p>No events found.</p>

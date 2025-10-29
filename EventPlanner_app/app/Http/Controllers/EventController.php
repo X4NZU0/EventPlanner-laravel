@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+use App\Models\Admin;
 
 class EventController extends Controller
 {
@@ -17,15 +18,16 @@ class EventController extends Controller
         }
 
         $events = DB::table('event')
-            ->join('admin', 'event.event_poster', '=', 'admin.admin_id')
-            ->select(
-                'event.*',
-                'admin.admin_name',
-                DB::raw('(SELECT COUNT(*) FROM event_interaction WHERE event_id = event.event_id) AS interest_count'),
-                DB::raw('(SELECT COUNT(*) FROM event_comments WHERE event_id = event.event_id) AS comment_count')
-            )
-            ->orderBy('event_datestart', 'desc')
-            ->get();
+    ->leftJoin('admin', 'event.event_poster', '=', 'admin.admin_id')
+    ->select(
+        'event.*',
+        'admin.admin_name',
+        DB::raw('(SELECT COUNT(*) FROM event_interaction WHERE event_id = event.event_id) AS interest_count'),
+        DB::raw('(SELECT COUNT(*) FROM event_comments WHERE event_id = event.event_id) AS comment_count')
+    )
+    ->orderBy('event_datestart', 'desc')
+    ->get();
+
 
         return view('events.index', compact('events', 'userOrAdmin'));
     }
@@ -65,27 +67,33 @@ class EventController extends Controller
             'event_dateend' => $request->event_dateend,
             'event_timestart' => $request->event_timestart,
             'event_timeend' => $request->event_timeend,
-            'event_poster' => session('admin')['admin_id'],
         ]);
 
         return redirect()->route('events.index')->with('success', 'Event created successfully!');
     }
 
     // Show edit form (admins only)
-    public function edit($id)
-    {
-        if (!session()->has('admin')) {
-            return redirect('/login')->withErrors(['access' => 'Admin access required.']);
-        }
-
-        $event = DB::table('event')->where('event_id', $id)->first();
-
-        if (!$event) {
-            return redirect()->route('events.index')->withErrors(['notfound' => 'Event not found.']);
-        }
-
-        return view('events.edit', compact('event'));
+   public function edit($id)
+{
+    // Check if user or admin is logged in
+    if (!Session::has('user_id') && !Session::has('admin_id')) {
+        return redirect()->route('login')->withErrors(['access' => 'You must log in first.']);
     }
+
+    // Get the event safely
+    $event = DB::table('event')->where('event_id', $id)->first();
+
+    if (!$event) {
+        return redirect()->route('events.index')->withErrors(['notfound' => 'Event not found.']);
+    }
+
+    // Optionally get session status (if used for display logic)
+    $status = Session::get('status');
+
+    return view('events.edit', compact('event', 'status'));
+}
+
+
 
     // Update event (admins only)
     public function update(Request $request, $id)
@@ -191,7 +199,6 @@ class EventController extends Controller
 
         DB::table('event_comments')->insert([
             'event_id' => $id,
-            'user_poster' => $userId,
             'event_comment' => $request->comment_text,
             'comment_datetime' => now(),
         ]);

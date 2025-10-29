@@ -8,12 +8,10 @@ use Illuminate\Support\Facades\Session;
 
 class Authenticate
 {
-    /**
-     * Handle an incoming request.
-     */
+    
     public function handle(Request $request, Closure $next, ...$guards)
     {
-        if (!Session::has('user_id')) {
+        if (!Session::has('user_id') && !Session::has('admin_id')) {
             return redirect('/login')->withErrors(['access' => 'You must log in first.']);
         }
 

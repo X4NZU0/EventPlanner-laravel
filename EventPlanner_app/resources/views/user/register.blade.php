@@ -1,46 +1,71 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>User Registration</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Event Planner</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
-    <h2>Register</h2>
+<body class="register-page">
+    <div class="register-container">
+        <h2>User Registration</h2>
 
-    @if ($errors->any())
-        <div style="color: red;">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+        @if ($errors->any())
+            <div class="error-box">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-    <form method="POST" action="{{ route('register.submit') }}">
-        @csrf
-        <label>Student ID:</label>
-        <input type="text" name="user_student_id"><br>
+        <form method="POST" action="{{ route('register.submit') }}" class="register-form">
+            @csrf
 
-        <label>Name:</label>
-        <input type="text" name="user_name" required><br>
+            <div class="form-group">
+                <label for="user_student_id">Student ID</label>
+                <input type="text" id="user_student_id" name="user_student_id" value="{{ old('user_student_id') }}">
+            </div>
 
-        <label>Email:</label>
-        <input type="email" name="user_email"><br>
+            <div class="form-group">
+                <label for="user_name">Name</label>
+                <input type="text" id="user_name" name="user_name" required>
+            </div>
 
-        <label>Password:</label>
-        <input type="password" name="user_password" required><br>
+            <div class="form-group">
+                <label for="user_email">Email</label>
+                <input type="email" id="user_email" name="user_email">
+            </div>
 
-        <label>Confirm Password:</label>
-        <input type="password" name="user_password_confirmation" required><br>
+            <div class="form-group">
+                <label for="user_password">Password</label>
+                <input type="password" id="user_password" name="user_password" required>
+            </div>
 
-        <label>Year Level:</label>
-        <input type="text" name="user_year_lvl"><br>
+            <div class="form-group">
+                <label for="user_password_confirmation">Confirm Password</label>
+                <input type="password" id="user_password_confirmation" name="user_password_confirmation" required>
+            </div>
 
-        <label>Contact Number:</label>
-        <input type="text" name="user_number"><br>
+            <div class="form-group">
+                <label for="user_year_lvl">Year Level</label>
+                <input type="text" id="user_year_lvl" name="user_year_lvl">
+            </div>
 
-        <button type="submit">Register</button>
-    </form>
-    <a href="{{ route('welcome') }}">back</a>
+            <div class="form-group">
+                <label for="user_number">Contact Number</label>
+                <input type="text" id="user_number" name="user_number">
+            </div>
+
+            <button type="submit" class="btn-primary full-width">Register</button>
+        </form>
+        <p class="auth-note">
+        Already have an account?
+        <a href="{{ route('login') }}" class="link">Login here</a>
+    </p>
+
+        <a href="{{ route('welcome') }}" class="back-link">← Back to Welcome</a>
+    </div>
 </body>
 </html>

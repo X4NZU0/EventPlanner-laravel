@@ -5,8 +5,11 @@ use App\Http\Controllers\UserRegistrationController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\AdminController;
 
-// Homepage
+// =========================
+// HOMEPAGE & AUTH
+// =========================
 Route::view('/', 'welcome')->name('welcome');
 
 // Registration
@@ -31,20 +34,20 @@ Route::get('/dashboard', function () {
 // EVENT ROUTES
 // =========================
 
-// Admin-only event routes (must be above /events/{id})
-Route::middleware(['admin'])->group(function () {
+// Events accessible to all logged-in users
+
     Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
     Route::post('/events', [EventController::class, 'store'])->name('events.store');
     Route::get('/events/{id}/edit', [EventController::class, 'edit'])->name('events.edit');
     Route::put('/events/{id}', [EventController::class, 'update'])->name('events.update');
     Route::delete('/events/{id}', [EventController::class, 'destroy'])->name('events.destroy');
-});
 
-// Public / user event routes
+
+// Public event routes
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
 Route::post('/events/{id}/interested', [EventController::class, 'markInterested'])->name('events.interested');
 Route::post('/events/{id}/comment', [EventController::class, 'addComment'])->name('events.comment');
-Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show'); // put last
+Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
 
 // =========================
 // USER ROUTES
@@ -56,8 +59,11 @@ Route::delete('/users/{id}', [UserRegistrationController::class, 'destroy'])->na
 Route::get('/approve/{id}', [UserRegistrationController::class, 'approveUser'])->name('user.approve');
 
 // =========================
-// ADMIN USER MANAGEMENT
+// ADMIN DASHBOARD & MANAGEMENT
 // =========================
-Route::get('/admin/users', [UserManagementController::class, 'index'])->name('admin.users');
-Route::post('/admin/users/{id}/update-role', [UserManagementController::class, 'updateRole'])->name('admin.users.updateRole');
-Route::delete('/admin/users/{id}', [UserManagementController::class, 'destroy'])->name('admin.users.destroy');
+
+    Route::get('/admin', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/users', [UserManagementController::class, 'index'])->name('admin.users');
+    Route::post('/admin/users/{id}/update-role', [UserManagementController::class, 'updateRole'])->name('admin.users.updateRole');
+    Route::delete('/admin/users/{id}', [UserManagementController::class, 'destroy'])->name('admin.users.destroy');
+
