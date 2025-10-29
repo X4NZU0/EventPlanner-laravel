@@ -1,32 +1,30 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UserRegistrationController;
-use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\LoginController;
-
-//ito homepage
-Route::get('/', function () {
-    return view('welcome');
-});
-
 
 Route::view('/', 'welcome')->name('welcome');
 
-//ito register route
+// Registration
 Route::get('/register', [UserRegistrationController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [UserRegistrationController::class, 'register'])->name('register.submit');
 
-
-//login
+// Login / Logout
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
-Route::get('/dashboard', function () {
+// Dashboard (for users)
+Route::middleware(['auth'])->get('/dashboard', function () {
     $user = session('user');
-    if (!$user) {
-        return redirect()->route('login')->withErrors(['login' => 'Please login first.']);
-    }
     return view('dashboard', compact('user'));
 })->name('dashboard');
+
+// Admin
+Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+    Route::get('/users', [UserManagementController::class, 'index'])->name('admin.users');
+    Route::post('/users/{id}/update-role', [UserManagementController::class, 'updateRole'])->name('admin.users.updateRole');
+    Route::delete('/users/{id}', [UserManagementController::class, 'destroy'])->name('admin.users.destroy');
+});
+
+
+
