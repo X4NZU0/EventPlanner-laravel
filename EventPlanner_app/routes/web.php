@@ -6,6 +6,7 @@ use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\UserController;
 
 // =========================
 // HOMEPAGE & AUTH
@@ -66,4 +67,14 @@ Route::get('/approve/{id}', [UserRegistrationController::class, 'approveUser'])-
     Route::get('/admin/users', [UserManagementController::class, 'index'])->name('admin.users');
     Route::post('/admin/users/{id}/update-role', [UserManagementController::class, 'updateRole'])->name('admin.users.updateRole');
     Route::delete('/admin/users/{id}', [UserManagementController::class, 'destroy'])->name('admin.users.destroy');
+
+
+
+Route::middleware([])->group(function () {
+    Route::get('/profile', [UserController::class, 'edit'])->name('profile.edit');
+    Route::post('/profile/update', [UserController::class, 'update'])->name('profile.update');
+
+});
+
+
 

@@ -23,7 +23,6 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        // Validate input
         $request->validate([
             'user_email' => 'required|email',
             'user_password' => 'required|string',
@@ -35,11 +34,11 @@ class LoginController extends Controller
         // --- Admin Login ---
         $admin = Admin::where('admin_email', $email)->first();
         if ($admin && Hash::check($password, $admin->admin_password)) {
-            Session::put('admin', [
-                'admin_id' => $admin->admin_id,
-                'admin_name' => $admin->admin_name,
-                'admin_email' => $admin->admin_email,
-                'status' => 'admin'
+            Session::put('account', [
+                'id' => $admin->admin_id,
+                'name' => $admin->admin_name,
+                'email' => $admin->admin_email,
+                'role' => 'admin',
             ]);
 
             return redirect()->route('events.index')->with('success', 'Logged in as admin.');
@@ -48,11 +47,13 @@ class LoginController extends Controller
         // --- Regular User Login ---
         $user = UserRegistration::where('user_email', $email)->first();
         if ($user && Hash::check($password, $user->user_password)) {
-            Session::put('user', [
-                'user_id' => $user->user_id,
-                'user_name' => $user->user_name,
-                'user_email' => $user->user_email,
-                'status' => 'user'
+            Session::put('account', [
+                'id' => $user->user_id,
+                'name' => $user->user_name,
+                'email' => $user->user_email,
+                'role' => 'user',
+                'year' => $user->user_year_lvl,
+                'pfp' => $user->user_pfp,
             ]);
 
             return redirect()->route('events.index')->with('success', 'Logged in successfully.');
@@ -67,9 +68,7 @@ class LoginController extends Controller
      */
     public function logout()
     {
-        Session::forget('user');
-        Session::forget('admin');
-
+        Session::forget('account');
         return redirect()->route('login')->with('success', 'Logged out successfully.');
     }
 }

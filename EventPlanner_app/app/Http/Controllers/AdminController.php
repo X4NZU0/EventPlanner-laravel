@@ -11,19 +11,20 @@ class AdminController extends Controller
 {
     // Admin dashboard
     public function index()
-    {
-        // Make sure the user is logged in
-        $user = session('user');
-        if (!$user || $user->role !== 'admin') {
-            return redirect()->route('login')->withErrors(['login' => 'Access denied. Admins only.']);
-        }
-
-        // Example stats
-        $totalUsers = User::count();
-        $totalEvents = Event::count();
-
-        return view('admin.dashboard', compact('user', 'totalUsers', 'totalEvents'));
+{
+    $user = session('user');
+    
+    // Check if logged in and is admin (roles == 2)
+    if (!$user || ($user['roles'] ?? 1) != 2) {
+        return redirect()->route('login')->withErrors(['login' => 'Access denied. Admins only.']);
     }
+
+    $totalUsers = User::count();
+    $totalEvents = Event::count();
+
+    return view('admin.dashboard', compact('user', 'totalUsers', 'totalEvents'));
+}
+
 
     // Show all users (optional, can be separate from UserManagementController)
     public function users()
