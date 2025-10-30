@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register | Event Planner</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/register.css'])
 </head>
 <body class="register-page">
     <div class="register-container">
@@ -25,17 +25,17 @@
 
             <div class="form-group">
                 <label for="user_student_id">Student ID</label>
-                <input type="text" id="user_student_id" name="user_student_id" value="{{ old('user_student_id') }}">
+                <input type="text" id="user_student_id" name="user_student_id" value="{{ old('user_student_id', '') }}">
             </div>
 
             <div class="form-group">
                 <label for="user_name">Name</label>
-                <input type="text" id="user_name" name="user_name" required>
+                <input type="text" id="user_name" name="user_name" value="{{ old('user_name', '') }}" required>
             </div>
 
             <div class="form-group">
                 <label for="user_email">Email</label>
-                <input type="email" id="user_email" name="user_email">
+                <input type="email" id="user_email" name="user_email" value="{{ old('user_email', '') }}">
             </div>
 
             <div class="form-group">
@@ -50,20 +50,20 @@
 
             <div class="form-group">
                 <label for="user_year_lvl">Year Level</label>
-                <input type="text" id="user_year_lvl" name="user_year_lvl">
+                <input type="text" id="user_year_lvl" name="user_year_lvl" value="{{ old('user_year_lvl', '') }}">
             </div>
 
             <div class="form-group">
                 <label for="user_number">Contact Number</label>
-                <input type="text" id="user_number" name="user_number">
+                <input type="text" id="user_number" name="user_number" value="{{ old('user_number', '') }}">
             </div>
 
             <button type="submit" class="btn-primary full-width">Register</button>
         </form>
+
         <p class="auth-note">
-        Already have an account?
-        <a href="{{ route('login') }}" class="link">Login here</a>
-    </p>
+            Already have an account? <a href="{{ route('login') }}" class="link">Login here</a>
+        </p>
 
         <a href="{{ route('welcome') }}" class="back-link">← Back to Welcome</a>
     </div>

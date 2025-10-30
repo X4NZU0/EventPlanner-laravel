@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+
+
 
 class EventController extends Controller
 {
@@ -33,9 +36,7 @@ class EventController extends Controller
     // Show event creation form (admins only)
     public function create()
     {
-        if (!session()->has('admin')) {
-            return redirect('/login')->withErrors(['access' => 'Admin access required.']);
-        }
+        
         return view('events.create');
     }
 
@@ -54,7 +55,14 @@ class EventController extends Controller
             'event_timeend' => 'required',
             'event_datestart' => 'required|date',
             'event_dateend' => 'required|date',
+            'event_img' => 'nullable|image|max:2048', // image validation
         ]);
+
+            // Handle image upload
+    $imagePath = null;
+    if ($request->hasFile('event_img')) {
+        $imagePath = $request->file('event_img')->store('events', 'public');
+    }
 
         DB::table('event')->insert([
             'event_name' => $request->event_name,
@@ -65,6 +73,7 @@ class EventController extends Controller
             'event_timestart' => $request->event_timestart,
             'event_timeend' => $request->event_timeend,
             'event_poster' => session('admin.admin_id'),
+            'event_img' => $imagePath, // save path in DB
         ]);
 
         return redirect()->route('events.index')->with('success', 'Event created successfully!');
@@ -73,9 +82,7 @@ class EventController extends Controller
     // Show edit form
     public function edit($id)
     {
-        if (!Session::has('user_id') && !Session::has('admin_id')) {
-            return redirect()->route('login')->withErrors(['access' => 'You must log in first.']);
-        }
+        
 
         $event = DB::table('event')->where('event_id', $id)->first();
         if (!$event) {
@@ -87,29 +94,48 @@ class EventController extends Controller
 
     // Update event
     public function update(Request $request, $id)
-    {
-        $request->validate([
-            'event_name' => 'required',
-            'event_details' => 'required|max:150',
-            'event_location' => 'required',
-            'event_timestart' => 'required',
-            'event_timeend' => 'required',
-            'event_datestart' => 'required|date',
-            'event_dateend' => 'required|date',
-        ]);
+{
+    // Validate input
+    $request->validate([
+        'event_name' => 'required',
+        'event_details' => 'required|max:150',
+        'event_location' => 'required',
+        'event_timestart' => 'required',
+        'event_timeend' => 'required',
+        'event_datestart' => 'required|date',
+        'event_dateend' => 'required|date',
+        'event_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
+    ]);
 
-        DB::table('event')->where('event_id', $id)->update([
-            'event_name' => $request->event_name,
-            'event_details' => $request->event_details,
-            'event_location' => $request->event_location,
-            'event_datestart' => $request->event_datestart,
-            'event_dateend' => $request->event_dateend,
-            'event_timestart' => $request->event_timestart,
-            'event_timeend' => $request->event_timeend,
-        ]);
+    $updateData = [
+        'event_name' => $request->event_name,
+        'event_details' => $request->event_details,
+        'event_location' => $request->event_location,
+        'event_datestart' => $request->event_datestart,
+        'event_dateend' => $request->event_dateend,
+        'event_timestart' => $request->event_timestart,
+        'event_timeend' => $request->event_timeend,
+    ];
 
-        return redirect()->route('events.index')->with('success', 'Event updated successfully!');
+    // Handle image upload
+    if ($request->hasFile('event_img')) {
+        $file = $request->file('event_img');
+        $filename = time() . '_' . $file->getClientOriginalName();
+        $path = $file->storeAs('events', $filename, 'public');
+
+        // Update the image path
+        $updateData['event_img'] = $path;
+
+        // Optionally delete old image
+        
     }
+
+    // Update database
+    DB::table('event')->where('event_id', $id)->update($updateData);
+
+    return redirect()->route('events.index')->with('success', 'Event updated successfully!');
+}
+
 
     // Delete event
     public function destroy($id)
@@ -118,8 +144,10 @@ class EventController extends Controller
             return redirect('/login')->withErrors(['access' => 'Admin access required.']);
         }
 
+      //  DB::table('event')->where('event_id', $id)->delete();
+        DB::table('event_comments')->where('event_id', $id)->delete();
         DB::table('event')->where('event_id', $id)->delete();
-        return redirect()->route('events.index')->with('success', 'Event deleted successfully!');
+            return redirect()->route('events.index')->with('success', 'Event deleted successfully!');
     }
 
     // Mark interested (users or admins)
@@ -128,9 +156,7 @@ class EventController extends Controller
     $userId = session('user_id');     // null if admin
     $adminId = session('admin_id');   // null if user
 
-    if (!$userId && !$adminId) {
-        return redirect('/login')->withErrors(['access' => 'You must log in first.']);
-    }
+  
 
     $isAdmin = $adminId ? 1 : 0;
     $actorId = $userId ?? $adminId;
@@ -165,9 +191,7 @@ class EventController extends Controller
     public function comment(Request $request, $eventId)
     {
         $userOrAdmin = session('user') ?? session('admin');
-        if (!$userOrAdmin) {
-            return redirect('/login')->withErrors(['access' => 'You must log in first.']);
-        }
+        
 
         $request->validate([
             'event_comment' => 'required|string|max:500',
