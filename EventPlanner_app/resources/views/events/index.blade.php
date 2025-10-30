@@ -36,7 +36,8 @@
     <a href="{{ route('profile.edit') }}" class="user-profile-link">
         <div class="user-profile">
             <div class="user-avatar">
-                <img src="{{ $userPfp ? asset('storage/' . $userPfp) : asset('images/default-pfp.png') }}" alt="Profile Picture">
+              <img src="{{ $userPfp ? asset('storage/' . $userPfp) . '?v=' . now()->timestamp : asset('images/default-pfp.png') }}" alt="Profile Picture">
+
             </div>
             <div class="user-info">
                 <span class="user-name">{{ $isAdmin ? 'Admin' : $displayName }}</span>

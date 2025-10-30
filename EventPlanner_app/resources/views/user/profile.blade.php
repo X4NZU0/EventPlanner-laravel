@@ -20,7 +20,7 @@
             <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
                 <img 
                     id="preview"
-                    src="{{ $user->user_pfp ? asset('storage/' . $user->user_pfp) : asset('images/default-pfp.png') }}"
+                    src="{{ $user->user_pfp ? asset('storage/' . $user->user_pfp) . '?v=' . now()->timestamp : asset('images/default-pfp.png') }}"
                     alt="Profile Picture"
                     width="120" height="120"
                     style="border-radius: 50%; object-fit: cover; box-shadow: 0 0 10px rgba(0,0,0,0.4);"
@@ -75,41 +75,33 @@
 
         <button type="submit" class="btn-update">Update Profile</button>
     </form>
+
+    <a href="{{ route('events.index') }}" class="back-link">← Back to Events</a>
 </div>
 
 <!-- ✅ Live Image Preview -->
 <script>
 function previewImage(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
     const reader = new FileReader();
     reader.onload = function() {
-        const output = document.getElementById('preview');
-        output.src = reader.result;
+        document.getElementById('preview').src = reader.result;
     };
-    reader.readAsDataURL(event.target.files[0]);
-}
-</script>
-<a href="{{ route('events.index') }}" class="back-link">← Back to Events</a>
-<script>
-function previewImage(event) {
-    const reader = new FileReader();
-    reader.onload = function(){
-        const output = document.getElementById('preview');
-        output.src = reader.result;
-    };
-    reader.readAsDataURL(event.target.files[0]);
+    reader.readAsDataURL(file);
 }
 
 // 👁️ Toggle Password Visibility
 document.addEventListener('DOMContentLoaded', () => {
     const togglePassword = document.getElementById('togglePassword');
     const passwordInput = document.getElementById('password');
-    
-    togglePassword.addEventListener('click', () => {
-        const type = passwordInput.type === 'password' ? 'text' : 'password';
-        passwordInput.type = type;
-        togglePassword.textContent = type === 'password' ? '👁️' : '🙈';
-    });
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+            togglePassword.textContent = type === 'password' ? '👁️' : '🙈';
+        });
+    }
 });
 </script>
-
 @endsection

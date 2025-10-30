@@ -12,26 +12,34 @@ use Illuminate\Support\Facades\Session;
 class EventController extends Controller
 {
     // Show all events
-    public function index()
-    {
-        $userOrAdmin = session('user') ?? session('admin');
-        if (!$userOrAdmin) {
-            return redirect('/login')->withErrors(['access' => 'You must log in first.']);
-        }
+   public function index()
+{
+    $account = session('account');
 
-        $events = DB::table('event')
-            ->leftJoin('admin', 'event.event_poster', '=', 'admin.admin_id')
-            ->select(
-                'event.*',
-                'admin.admin_name',
-                DB::raw('(SELECT COUNT(*) FROM event_interaction WHERE event_id = event.event_id) AS interest_count'),
-                DB::raw('(SELECT COUNT(*) FROM event_comments WHERE event_id = event.event_id) AS comment_count')
-            )
-            ->orderBy('event_datestart', 'desc')
-            ->get();
-
-        return view('events.index', compact('events', 'userOrAdmin'));
+    if (!$account) {
+        return redirect('/login')->withErrors(['access' => 'You must log in first.']);
     }
+
+    $userPfp = $account['pfp'] ?? null;
+    $displayName = $account['name'] ?? 'Guest';
+    $userYear = $account['year'] ?? '-';
+    $isAdmin = ($account['role'] ?? '') === 'admin';
+
+    $events = DB::table('event')
+        ->leftJoin('admin', 'event.event_poster', '=', 'admin.admin_id')
+        ->select(
+            'event.*',
+            'admin.admin_name',
+            DB::raw('(SELECT COUNT(*) FROM event_interaction WHERE event_id = event.event_id) AS interest_count'),
+            DB::raw('(SELECT COUNT(*) FROM event_comments WHERE event_id = event.event_id) AS comment_count')
+        )
+        ->orderBy('event_datestart', 'desc')
+        ->get();
+
+    return view('events.index', compact('events', 'userPfp', 'displayName', 'userYear', 'isAdmin'));
+}
+
+
 
     // Show event creation form (admins only)
     public function create()
