@@ -91,8 +91,11 @@
 
                     <form action="{{ route('events.interested', $event->event_id) }}" method="POST" class="interested-form">
                         @csrf
-                        <button type="submit" class="btn">Mark Interested ({{ $event->interest_count ?? 0 }})</button>
+                        <button type="submit" class="btn">
+                            ❤️ Interested ({{ $event->interest_count ?? 0 }})
+                        </button>
                     </form>
+
 
                     <button type="button" class="btn btn-secondary" onclick="toggleComments({{ $event->event_id }})">
                         Comments ({{ $event->comment_count ?? 0 }})

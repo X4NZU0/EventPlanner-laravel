@@ -52,6 +52,14 @@
                 </span>
             </div>
         </div>
+        <!-- Add this right below your login form or near the submit button -->
+<div style="text-align: center; margin-top: 1rem;">
+    <a href="{{ route('password.request') }}" 
+       style="color: #00bcd4; text-decoration: none; font-size: 0.9rem;">
+        Forgot your password?
+    </a>
+</div>
+
 
         <button type="submit" class="btn-primary full-width">Login</button>
     </form>

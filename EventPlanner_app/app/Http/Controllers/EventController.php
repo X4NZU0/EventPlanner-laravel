@@ -161,15 +161,17 @@ class EventController extends Controller
     // Mark interested (users or admins)
     public function interested($eventId)
 {
-    $userId = session('user_id');     // null if admin
-    $adminId = session('admin_id');   // null if user
+    $account = session('account');
 
-  
+    // Ensure user is logged in
+    if (!$account) {
+        return redirect('/login')->withErrors(['access' => 'You must log in first.']);
+    }
 
-    $isAdmin = $adminId ? 1 : 0;
-    $actorId = $userId ?? $adminId;
+    $isAdmin = ($account['role'] === 'admin');
+    $actorId = $account['id'];
 
-    // Check if already marked
+    // Check if already marked as interested
     $exists = DB::table('event_interaction')
         ->where('event_id', $eventId)
         ->where(function ($query) use ($actorId, $isAdmin) {
@@ -181,17 +183,35 @@ class EventController extends Controller
         })
         ->exists();
 
-    if (!$exists) {
+    // ✅ Toggle logic
+    if ($exists) {
+        // If already marked, unmark (delete)
+        DB::table('event_interaction')
+            ->where('event_id', $eventId)
+            ->where(function ($query) use ($actorId, $isAdmin) {
+                if ($isAdmin) {
+                    $query->where('admin_id', $actorId);
+                } else {
+                    $query->where('user_id', $actorId);
+                }
+            })
+            ->delete();
+    } else {
+        // If not marked, insert new record
         DB::table('event_interaction')->insert([
             'event_id' => $eventId,
-            'user_id' => $isAdmin ? null : $actorId,    // null if admin
-            'admin_id' => $isAdmin ? $actorId : null,  // null if user
+            'user_id' => $isAdmin ? null : $actorId,
+            'admin_id' => $isAdmin ? $actorId : null,
             'is_admin' => $isAdmin,
+            'created_at' => now(),
         ]);
     }
 
-    return back()->with('success', 'Marked as interested!');
+    return redirect()->back()->with('success', $exists ? 'Removed from interested list.' : 'Marked as interested!');
 }
+
+
+
 
 
 

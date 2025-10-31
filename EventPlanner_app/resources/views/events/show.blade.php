@@ -18,8 +18,11 @@
 
     <form action="{{ route('events.interested', $event->event_id) }}" method="POST" class="interested-form">
         @csrf
-        <button type="submit" class="btn">Mark Interested</button> 
-    </form> <br><br>
+        <button type="submit" class="btn">
+            ❤️ Interested ({{ $event->interest_count ?? 0 }})
+        </button>
+    </form>
+
     @if(!empty($event->event_img))
             <div class="event-image">
                 <img src="{{ asset('storage/' . $event->event_img) }}" alt="{{ $event->event_name }}">
