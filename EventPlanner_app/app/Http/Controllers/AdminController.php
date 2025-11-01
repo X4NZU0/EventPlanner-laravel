@@ -3,39 +3,50 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User; // Assuming you manage users
-use App\Models\Event; // If you want to show event stats
 use Illuminate\Support\Facades\Session;
+use App\Models\UserRegistration;
+use App\Models\Event;
 
 class AdminController extends Controller
 {
     // Admin dashboard
     public function index()
-{
-    $user = session('user');
-    
-    // Check if logged in and is admin (roles == 2)
-    if (!$user || ($user['roles'] ?? 1) != 2) {
-        return redirect()->route('login')->withErrors(['login' => 'Access denied. Admins only.']);
+    {
+        $account = session('account');
+
+        // Check if logged in and is admin
+        if (!$account || $account['role'] !== 'admin') {
+            return redirect()->route('login')->withErrors(['login' => 'Access denied. Admins only.']);
+        }
+
+        $totalUsers = UserRegistration::count();
+        $totalEvents = Event::count();
+
+        return view('admin.dashboard', compact('account', 'totalUsers', 'totalEvents'));
     }
 
-    $totalUsers = User::count();
-    $totalEvents = Event::count();
-
-    return view('admin.dashboard', compact('user', 'totalUsers', 'totalEvents'));
-}
-
-
-    // Show all users (optional, can be separate from UserManagementController)
+    // Show all users (optional)
     public function users()
     {
-        $users = User::all();
+        $account = session('account');
+
+        if (!$account || $account['role'] !== 'admin') {
+            return redirect()->route('login')->withErrors(['login' => 'Access denied.']);
+        }
+
+        $users = UserRegistration::all();
         return view('admin.users', compact('users'));
     }
 
     // Optional: show all events
     public function events()
     {
+        $account = session('account');
+
+        if (!$account || $account['role'] !== 'admin') {
+            return redirect()->route('login')->withErrors(['login' => 'Access denied.']);
+        }
+
         $events = Event::all();
         return view('admin.events', compact('events'));
     }

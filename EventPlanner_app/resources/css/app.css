@@ -49,6 +49,7 @@ body {
   animation: darkPulse 18s ease infinite;
   color: #f3f3f3;
   font-family: 'Inter', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+  margin-top: 80px;
 }
 
 body::after {
@@ -79,14 +80,40 @@ body::after {
 }
 
 /* Optional glass and shadow enhancements for UI sections */
-.dashboard-header, 
-.event-card, 
+
+.dashboard-header {
+  background-color: rgba(26, 6, 51, 0.6); /* translucent purple-black */
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 0 25px rgba(50, 0, 80, 0.4);
+
+  /* ✅ Fix position at the top */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000; /* ensures it stays above other content */
+
+  /* Optional for spacing */
+  padding: 0.8rem 2rem;
+}
+
+.event-card {
+  background-color: rgba(26, 6, 51, 0.6); /* translucent purple-black */
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 0 25px rgba(50, 0, 80, 0.4);
+  
+}
 .container {
   background-color: rgba(26, 6, 51, 0.6); /* translucent purple-black */
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
   box-shadow: 0 0 25px rgba(50, 0, 80, 0.4);
+  
 }
 
 /* Buttons and accent items slightly glowing purple */

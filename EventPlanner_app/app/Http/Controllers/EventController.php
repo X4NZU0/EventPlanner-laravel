@@ -42,67 +42,86 @@ class EventController extends Controller
 
 
     // Show event creation form (admins only)
-    public function create()
-    {
-        
-        return view('events.create');
+    // Show event creation form (admins only)
+public function create()
+{
+    $account = session('account');
+
+    if (!$account || ($account['role'] ?? '') !== 'admin') {
+        return redirect('/login')->withErrors(['access' => 'Admin access required.']);
     }
 
-    // Store a new event (admins only)
-    public function store(Request $request)
-    {
-        if (!session()->has('admin')) {
-            return redirect('/login')->withErrors(['access' => 'Admin access required.']);
-        }
+    return view('events.create');
+}
 
-        $request->validate([
-            'event_name' => 'required',
-            'event_details' => 'required|max:150',
-            'event_location' => 'required',
-            'event_timestart' => 'required',
-            'event_timeend' => 'required',
-            'event_datestart' => 'required|date',
-            'event_dateend' => 'required|date',
-            'event_img' => 'nullable|image|max:2048', // image validation
-        ]);
+public function store(Request $request)
+{
+    $account = session('account');
 
-            // Handle image upload
+    if (!$account || ($account['role'] ?? '') !== 'admin') {
+        return redirect('/login')->withErrors(['access' => 'Admin access required.']);
+    }
+
+    $request->validate([
+        'event_name' => 'required',
+        'event_details' => 'required|max:150',
+        'event_location' => 'required',
+        'event_timestart' => 'required',
+        'event_timeend' => 'required',
+        'event_datestart' => 'required|date',
+        'event_dateend' => 'required|date',
+        'event_img' => 'nullable|image|max:2048',
+    ]);
+
+    // Handle image upload
     $imagePath = null;
     if ($request->hasFile('event_img')) {
         $imagePath = $request->file('event_img')->store('events', 'public');
     }
 
-        DB::table('event')->insert([
-            'event_name' => $request->event_name,
-            'event_details' => $request->event_details,
-            'event_location' => $request->event_location,
-            'event_datestart' => $request->event_datestart,
-            'event_dateend' => $request->event_dateend,
-            'event_timestart' => $request->event_timestart,
-            'event_timeend' => $request->event_timeend,
-            'event_poster' => session('admin.admin_id'),
-            'event_img' => $imagePath, // save path in DB
-        ]);
+    DB::table('event')->insert([
+        'event_name' => $request->event_name,
+        'event_details' => $request->event_details,
+        'event_location' => $request->event_location,
+        'event_datestart' => $request->event_datestart,
+        'event_dateend' => $request->event_dateend,
+        'event_timestart' => $request->event_timestart,
+        'event_timeend' => $request->event_timeend,
+        'event_poster' => $account['id'], // ✅ fixed: pulls from session('account')
+        'event_img' => $imagePath,
+    ]);
 
-        return redirect()->route('events.index')->with('success', 'Event created successfully!');
-    }
+    return redirect()->route('events.index')->with('success', 'Event created successfully!');
+}
+
 
     // Show edit form
     public function edit($id)
-    {
-        
+{
+    $account = session('account');
 
-        $event = DB::table('event')->where('event_id', $id)->first();
-        if (!$event) {
-            return redirect()->route('events.index')->withErrors(['notfound' => 'Event not found.']);
-        }
-
-        return view('events.edit', compact('event'));
+    // ✅ Check if admin
+    if (!$account || $account['role'] !== 'admin') {
+        return redirect()->route('events.index')->withErrors(['access' => 'Only admins can edit events.']);
     }
 
-    // Update event
-    public function update(Request $request, $id)
+    $event = DB::table('event')->where('event_id', $id)->first();
+    if (!$event) {
+        return redirect()->route('events.index')->withErrors(['notfound' => 'Event not found.']);
+    }
+
+    return view('events.edit', compact('event'));
+}
+
+public function update(Request $request, $id)
 {
+    $account = session('account');
+
+    // ✅ Check if admin
+    if (!$account || $account['role'] !== 'admin') {
+        return redirect()->route('events.index')->withErrors(['access' => 'Only admins can update events.']);
+    }
+
     // Validate input
     $request->validate([
         'event_name' => 'required',
@@ -131,32 +150,29 @@ class EventController extends Controller
         $filename = time() . '_' . $file->getClientOriginalName();
         $path = $file->storeAs('events', $filename, 'public');
 
-        // Update the image path
         $updateData['event_img'] = $path;
-
-        // Optionally delete old image
-        
     }
 
-    // Update database
     DB::table('event')->where('event_id', $id)->update($updateData);
 
     return redirect()->route('events.index')->with('success', 'Event updated successfully!');
 }
 
+public function destroy($id)
+{
+    $account = session('account');
 
-    // Delete event
-    public function destroy($id)
-    {
-        if (!session()->has('admin')) {
-            return redirect('/login')->withErrors(['access' => 'Admin access required.']);
-        }
-
-      //  DB::table('event')->where('event_id', $id)->delete();
-        DB::table('event_comments')->where('event_id', $id)->delete();
-        DB::table('event')->where('event_id', $id)->delete();
-            return redirect()->route('events.index')->with('success', 'Event deleted successfully!');
+    // ✅ Check if admin
+    if (!$account || $account['role'] !== 'admin') {
+        return redirect()->route('events.index')->withErrors(['access' => 'Only admins can delete events.']);
     }
+
+    // Delete event and its comments
+    DB::table('event_comments')->where('event_id', $id)->delete();
+    DB::table('event')->where('event_id', $id)->delete();
+
+    return redirect()->route('events.index')->with('success', 'Event deleted successfully!');
+}
 
     // Mark interested (users or admins)
     public function interested($eventId)

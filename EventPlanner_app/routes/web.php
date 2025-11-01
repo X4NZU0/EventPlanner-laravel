@@ -62,11 +62,21 @@ Route::get('/approve/{id}', [UserRegistrationController::class, 'approveUser'])-
 // =========================
 // ADMIN DASHBOARD & MANAGEMENT
 // =========================
+Route::group(['middleware' => function ($request, $next) {
+    $account = session('account');
 
-    Route::get('/admin', [AdminController::class, 'index'])->name('admin.dashboard');
-    Route::get('/admin/users', [UserManagementController::class, 'index'])->name('admin.users');
-    Route::post('/admin/users/{id}/update-role', [UserManagementController::class, 'updateRole'])->name('admin.users.updateRole');
-    Route::delete('/admin/users/{id}', [UserManagementController::class, 'destroy'])->name('admin.users.destroy');
+    if (!$account || $account['role'] !== 'admin') {
+        return redirect()->route('login')->withErrors(['login' => 'Access denied. Admins only.']);
+    }
+
+    return $next($request);
+}], function () {
+    Route::get('/admin', [\App\Http\Controllers\AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/users', [\App\Http\Controllers\UserManagementController::class, 'index'])->name('admin.users');
+    Route::post('/admin/users/{id}/update-role', [\App\Http\Controllers\UserManagementController::class, 'updateRole'])->name('admin.users.updateRole');
+    Route::delete('/admin/users/{id}', [\App\Http\Controllers\UserManagementController::class, 'destroy'])->name('admin.users.destroy');
+});
+
 
 
 
