@@ -91,3 +91,7 @@ Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLink'
 Route::get('/password/reset/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
 Route::post('/password/reset', [ForgotPasswordController::class, 'reset'])->name('password.update');
 
+Route::post('/events/{event}/comment/{comment}/like', [EventController::class, 'likeComment'])->name('events.comment.like');
+Route::post('/events/{event}/comment/{comment}/dislike', [EventController::class, 'dislikeComment'])->name('events.comment.dislike');
+Route::delete('/events/{event}/comment/{comment}', [EventController::class, 'deleteComment'])
+    ->name('events.comment.delete');
