@@ -633,6 +633,34 @@ body.dashboard-page {
     z-index: 10;
 }
 
+/* === TOOLTIP FOR USER PROFILE === */
+.user-profile-link {
+    position: relative;
+    display: inline-block;
+}
+
+.user-profile-link::after {
+    content: "Edit Profile";
+    position: absolute;
+    bottom: -32px; /* distance below the profile */
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
+    z-index: 200;
+}
+
+.user-profile-link:hover::after {
+    opacity: 1;
+    transform: translate(-50%, -4px);
+}
 
 .dashboard-header {
     display: flex;

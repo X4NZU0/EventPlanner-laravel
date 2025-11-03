@@ -45,7 +45,8 @@
                 </div>
                 <div class="user-info">
                     <span class="user-name">{{ $isAdmin ? 'Admin' : $displayName }}</span>
-                    <span class="user-year">{{ $userYear }}</span>
+                    <span class="user-year">Year {{ $userYear ?? 'N/A' }}</span>
+
                 </div>
             </div>
         </a>
