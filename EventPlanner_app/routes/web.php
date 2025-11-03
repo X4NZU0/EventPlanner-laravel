@@ -8,6 +8,8 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\ProfileController;
+
 // =========================
 // HOMEPAGE & AUTH
 // =========================
@@ -30,6 +32,9 @@ Route::get('/dashboard', function () {
     }
     return view('dashboard', compact('user'));
 })->name('dashboard');
+
+Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
 // =========================
 // EVENT ROUTES

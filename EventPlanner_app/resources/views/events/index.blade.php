@@ -33,18 +33,23 @@
         <span class="logo-ev">EV</span><span class="logo-plan">PLAN</span>
     </div>
 
-    <a href="{{ route('profile.edit') }}" class="user-profile-link">
-        <div class="user-profile">
-            <div class="user-avatar">
-              <img src="{{ $userPfp ? asset('storage/' . $userPfp) . '?v=' . now()->timestamp : asset('images/default-pfp.png') }}" alt="Profile Picture">
+    <div class="header-right">
+        <!-- Logout button on the left -->
+        <a href="{{ route('logout') }}" class="btn btn-logout logout-top-btn">Logout</a>
 
+        <!-- User Profile clickable area -->
+        <a href="{{ route('profile.edit') }}" class="user-profile-link">
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <img src="{{ $userPfp ? asset('storage/' . $userPfp) . '?v=' . now()->timestamp : asset('images/default-pfp.png') }}" alt="Profile Picture">
+                </div>
+                <div class="user-info">
+                    <span class="user-name">{{ $isAdmin ? 'Admin' : $displayName }}</span>
+                    <span class="user-year">{{ $userYear }}</span>
+                </div>
             </div>
-            <div class="user-info">
-                <span class="user-name">{{ $isAdmin ? 'Admin' : $displayName }}</span>
-                <span class="user-year">{{ $userYear }}</span>
-            </div>
-        </div>
-    </a>
+        </a>
+    </div>
 </div>
 
 <div class="header">
@@ -56,10 +61,9 @@
             <a href="{{ route('admin.users') }}" class="btn btn-create">Show Users</a>
         @endif
 
-        <a href="{{ route('logout') }}" class="btn btn-logout">Logout</a>
     </div>
 </div>
-
+<br>
 @if(session('success'))
     <p style="color:green;">{{ session('success') }}</p>
 @endif

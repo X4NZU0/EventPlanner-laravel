@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/register.css'])
 @section('content')
 <div class="profile-container">
     <h2>Edit Profile</h2>
@@ -26,13 +26,12 @@
                     style="border-radius: 50%; object-fit: cover; box-shadow: 0 0 10px rgba(0,0,0,0.4);"
                 >
 
-                <input 
-                    type="file" 
-                    name="user_pfp" 
-                    id="user_pfp" 
-                    accept="image/*"
-                    onchange="previewImage(event)"
-                    style="margin-top: 0.5rem; background: none; color: #ccc;"
+            <div class="file-upload">
+                <label for="user_pfp" class="file-upload-label">📁 Choose New Picture</label>
+                <input type="file" name="user_pfp" id="user_pfp" accept="image/*" onchange="previewImage(event)">
+            </div>
+            <p class="file-note">PNG, JPG, or JPEG — up to 2MB</p>
+
                 >
             </div>
         </div>

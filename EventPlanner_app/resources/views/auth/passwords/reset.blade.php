@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+
 <div class="reset-container">
     <h2>Reset Password</h2>
     <form action="{{ route('password.update') }}" method="POST">
